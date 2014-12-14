@@ -8,6 +8,7 @@ import os
 import subprocess
 import sys
 import time
+import urllib
 
 USAGE = """
 dokuwiki2git converts dokuwiki data directory into a git repository containing
@@ -46,7 +47,7 @@ class Converter:
 	def get_pagepath_and_timestamp(self, filename):
 		filename = os.path.relpath(filename, self.atticdir)
 		parts = filename.rsplit('.', 3)
-		return parts[0], parts[1] # pagepath, filename
+		return urllib.unquote(parts[0]), urllib.unquote(parts[1]) # pagepath, filename
 
 	def has_changelog_entry(self, pagepath, timestamp):
 		for c in self.changelog:
@@ -61,7 +62,7 @@ class Converter:
 
 		# Check that all referenced pages exist in attic
 		for c in self.changelog:
-			pagepath = c[3].replace(':', '/')
+			pagepath = urllib.quote(c[3].replace(':', '/'))
 			filename = os.path.join(self.atticdir, pagepath + '.%s.txt.gz' % c[0])
 			if not os.path.exists(filename):
 				log.warn('File "%s" does not exist, despite being in changelog, skipping' % filename)
@@ -149,7 +150,7 @@ class Converter:
 				changeparts = line.split('\t')
 				log.debug(changeparts)
 				assert(len(changeparts) == 7)
-				assert(changeparts[3] == pagename)
+				assert(changeparts[3] == urllib.unquote(pagename))
 				assert(changeparts[2] in ('C', 'D', 'E', 'e', 'R')) # create, delete, edit, minor edit, restore
 				self.changelog.append(changeparts)
 
