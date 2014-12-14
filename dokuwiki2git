@@ -9,6 +9,7 @@ import subprocess
 import sys
 import time
 import urllib
+from unidecode import unidecode
 
 USAGE = """
 dokuwiki2git converts dokuwiki data directory into a git repository containing
@@ -70,7 +71,7 @@ class Converter:
 
 			# depending on type of change, either add or remove
 			pagepath, timestamp = self.get_pagepath_and_timestamp(filename)
-			pagefile = pagepath + '.txt'
+			pagefile = unidecode(pagepath.decode('utf8')) + '.txt'
 			message = pagepath + ': ' + c[5]
 			user = c[4]
 			email = 'dokuwiki@%s' % (c[1])
